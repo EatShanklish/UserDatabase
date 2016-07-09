@@ -20,20 +20,23 @@
   
 <jsp:setProperty property="*" name="obj"/>
 
-<table>
 
+<table>
 
 <%  
 List <user> users = DAOuser.getAllUsers();      //JSP
 
-for (user u: users) {
-    out.println ("<tr><td>" + u.getFullname() + "</td><td>" +
-        u.getUsername() + "</td><td>" + u.getEmail()
-        + "</td><td>" + "</td></tr>");
-}
-%>
+for (user u: users) 
+    {
+	     out.println ("<tr><td>"+ u.getId() +"- </td><td>"+ u.getFullname() + "</td><td>" +
+        u.getUsername() + "</td><td>" + u.getEmail() + "</td><td>" + "</td><td>");
+        out.println ("<form action=\"deleteuser.jsp\"><input name=\"userid\" type=\"hidden\" value=\"" + u.getId() +"\">" +
+        	"<button type='submit'>Delete Me!</button></td></tr>");
+  }
 
+%>
   
 </table>
+</form>
 </body>
 </html>

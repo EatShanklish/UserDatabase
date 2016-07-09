@@ -1,6 +1,9 @@
 package com.Shanklish.UserDatabase;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import org.apache.tomcat.util.security.MD5Encoder;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -39,8 +42,11 @@ public class DAOuser {
 
 	}
 	
-	public static int addUser(user u) 
+	public static int addUser(user u) throws NoSuchAlgorithmException 
 	{
+	    String pass = MD5Encoder(u.getPassword().toString());
+	    u.setPassword(pass);
+	    
 		if (factory == null)
 			setupFactory();
 		
@@ -52,7 +58,7 @@ public class DAOuser {
 
 		 //save this specific record
 		 int i = (Integer)hibernateSession.save(u);  
-		
+		 
 		 // Commit transaction
 		 hibernateSession.getTransaction().commit();
 		 
@@ -61,6 +67,50 @@ public class DAOuser {
 		 return i;  
 	}
 	
+	public static void deleteUser(user u) 
+	{   
+		if (factory == null)
+			setupFactory();
+		
+		 // Get current session
+		 Session hibernateSession = factory.openSession();
+
+		 // Begin transaction
+		 hibernateSession.getTransaction().begin();
+
+		 //save this specific record
+		 hibernateSession.delete(u);  
+		 
+		 // Commit transaction
+		 hibernateSession.getTransaction().commit();
+		 
+		 hibernateSession.close();  
+		
+	}
+	
+	public static void deleteUserByID(int i) 
+	{   
+	    
+	    user myObject ;
+
+	    Session hibernateSession = factory.openSession();
+	   
+	    hibernateSession.getTransaction().begin();
+	    
+	    myObject = (user)hibernateSession.get(user.class,i);
+	    
+	    hibernateSession.delete(myObject);
+
+	   hibernateSession.getTransaction().commit();
+	    
+	    hibernateSession.close();  
+	    
+	   
+		
+	}
+	
+	
+
 	public static List<user> getAllUsers()
 	{
 		if (factory == null)
@@ -72,9 +122,16 @@ public class DAOuser {
 		 // Begin transaction
 		 hibernateSession.getTransaction().begin();
 		 
-		 //deprecated method & unsafe cast
-         List<user> users = hibernateSession.createQuery("FROM user").list(); 
 		 
+		 
+		 //deprecated method & unsafe cast
+		 List<user> users = hibernateSession.createQuery("FROM user").list(); 
+		 
+//         for(user u: users)
+//             {
+//        	 u.setPassword(md5decoder(u.getPassword()));
+//             }
+         
          // Commit transaction
          hibernateSession.getTransaction().commit();
       		 
@@ -82,4 +139,23 @@ public class DAOuser {
       				    
 		return users;
 	}
+	
+	private static String MD5Encoder( String password ) throws NoSuchAlgorithmException
+	{
+	    	MessageDigest md = MessageDigest.getInstance("MD5");
+	        md.update(password.getBytes());
+	        
+	        byte byteData[] = md.digest();
+	 
+	        //convert the byte to hex format method 1
+	        StringBuffer sb = new StringBuffer();
+	        
+	        for (int i = 0; i < byteData.length; i++) 
+	        {
+	            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+	        }
+	        
+	        return sb.toString();
+	}
+
 }

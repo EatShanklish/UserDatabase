@@ -55,9 +55,9 @@ public class user
 	    return password;
 	}
 	
-	public void setPassword( String password )
+	public void setPassword( String pass )
 	{
-	    this.password = password;
+	    this.password = pass;
 	}
 	
 	
